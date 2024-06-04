@@ -21,8 +21,8 @@ module "sensor" {
   subnetwork_mon_gateway  = "<virtual network subnetwork monitoring gateway>"
   instance_ssh_key_pub    = "<instance ssh public key>"
   image                   = "<instance image>"
-  sensor_license          = "<your Corelight senosr license key>"
-  sensor_community_string = "<the Fleet Manager community string>"
+  license_key             = "<your Corelight sensor license key>"
+  community_string        = "<the community string (api string) often times referenced by Fleet>"
 }
 ```
 

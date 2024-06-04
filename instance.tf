@@ -1,3 +1,15 @@
+module "sensor_config" {
+  source = "github.com/corelight/terraform-config-sensor"
+
+  fleet_community_string                       = var.community_string
+  sensor_license                               = var.license_key
+  sensor_management_interface_name             = "eth0"
+  sensor_monitoring_interface_name             = "eth1"
+  sensor_health_check_probe_source_ranges_cidr = var.region_probe_source_ranges_cidr
+  subnetwork_monitoring_cidr                   = var.subnetwork_mon_cidr
+  subnetwork_monitoring_gateway                = var.subnetwork_mon_gateway
+}
+
 resource "google_compute_instance_template" "sensor_template" {
   name         = var.instance_template_resource_name
   machine_type = var.instance_size
@@ -12,7 +24,7 @@ resource "google_compute_instance_template" "sensor_template" {
 
   metadata = {
     ssh-keys  = "${var.instance_ssh_user}:${file(var.instance_ssh_key_pub)}"
-    user-data = data.cloudinit_config.config.rendered
+    user-data = module.sensor_config.cloudinit_config.rendered
   }
 
   network_interface {
