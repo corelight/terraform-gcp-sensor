@@ -1,7 +1,7 @@
 locals {
   region                  = "us-west1"
   zone                    = "us-west1-a"
-  project_id              = "ng-cloud-dev"
+  project_id              = "<project-id>"
   auth                    = file("~/.config/gcloud/application_default_credentials.json")
   instance_ssh_key_pub    = "~/.ssh/id_ed25519_cl.pub"
   instance_bastion_image  = "ubuntu-os-cloud/ubuntu-2004-lts"
