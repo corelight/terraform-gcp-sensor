@@ -4,28 +4,27 @@
 
 Terraform for Corelight's GCP Cloud Sensor Deployment.
 
-## Getting Started
+### Usage
 
-Corelight Sensors support a broad range of instance types and sizes.
-You can create regional MIGs or zonal MIGs. Regional MIGs provide
-higher availability compared to zonal MIGs because the instances in
-a regional MIG are spread across multiple zones in a single region.
+```hcl
+module "sensor" {
+  source = "github.com/corelight/terraform-gcp-sensor"
 
-It is important to consider that some cost per GiB of traffic may be
-incurred if data is sent between regions within GCP. The sensors operate
-independently on individual traffic flows from the internal load balancer -
-which means the MIGs can be stateless.
-
-MIG’s can be autoscaled based on several factors, CPU utilization, HTTP
-capacity, and select cloud metrics. Here at Corelight, we believe in
-using our own products to help secure our own infrastructure. In doing
-so, we’ve used our sensors to secure the entirety of our hybrid
-deployment, both on premise and in the cloud. For our cloud sensors we
-have taken full advantage of autoscaling based on the amount of CPU
-utilization to ensure we have enough sensor capacity to secure our
-environments without running into adverse issues. We recommend scaling
-Corelight sensors when CPU utilization is over 70% for over 120
-seconds.
+  region                  = "<instance region>"
+  zone                    = "<instance availability zone>"
+  network_mgmt_name       = "<virtual network management name>"
+  subnetwork_mgmt_name    = "<virtual network subnetwork management name>"
+  subnetwork_mgmt_cidr    = "<virtual network subnetwork management CIDR>"
+  network_prod_name       = "<virtual network name for infra to be monitored"
+  subnetwork_mon_name     = "<virtual network subnetwork monitoring name>"
+  subnetwork_mon_cidr     = "<virtual network subnetwork monitoring CIDR>"
+  subnetwork_mon_gateway  = "<virtual network subnetwork monitoring gateway>"
+  instance_ssh_key_pub    = "<instance ssh public key>"
+  image                   = "<instance image>"
+  sensor_license          = "<your Corelight senosr license key>"
+  sensor_community_string = "<the Fleet Manager community string>"
+}
+```
 
 ### Deployment
 
