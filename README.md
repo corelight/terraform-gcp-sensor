@@ -6,7 +6,19 @@ Terraform for Corelight's GCP Cloud Sensor Deployment.
 
 ### Usage
 
-```hcl
+```terraform
+provider "google" {
+  project        = "<the default project to manage resources in>"
+  credentials    = "<path to or the contents of a service account key file>"
+  region         = "<the default region to manage resources in>"
+  zone           = "<the default zone to manage resources in>"
+  default_labels = {
+    terraform : true,
+    example : true,
+    purpose : "Corelight"
+  }
+}
+
 module "sensor" {
   source = "github.com/corelight/terraform-gcp-sensor"
 
