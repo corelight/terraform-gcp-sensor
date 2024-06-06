@@ -10,9 +10,11 @@ resource "google_compute_instance" "bastion_instance" {
       size  = var.image_disk_size
     }
   }
+
   metadata = {
     ssh-keys = "${var.instance_ssh_user}:${file(var.instance_ssh_key_pub)}"
   }
+
   network_interface {
     network    = var.network_mgmt_name
     subnetwork = var.subnetwork_mgmt_name
@@ -20,6 +22,7 @@ resource "google_compute_instance" "bastion_instance" {
       network_tier = "STANDARD"
     }
   }
+
   lifecycle {
     create_before_destroy = false
   }
