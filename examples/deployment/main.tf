@@ -1,16 +1,16 @@
 locals {
-  region                  = "us-west1"
-  zone                    = "us-west1-a"
-  project_id              = "<project-id>"
-  auth                    = file("~/.config/gcloud/application_default_credentials.json")
-  instance_ssh_key_pub    = "~/.ssh/id_ed25519_cl.pub"
-  instance_bastion_image  = "ubuntu-os-cloud/ubuntu-2004-lts"
-  instance_sensor_image   = "alma-8-20240516193720"
-  subnetwork_mgmt_cidr    = "10.129.0.0/24"
-  subnetwork_mon_cidr     = "10.3.0.0/24"
-  subnetwork_mon_gateway  = "10.3.0.1"
-  sensor_license          = file("~/corelight-license.txt")
-  sensor_community_string = "managedPassword!"
+  region                 = "us-west1"
+  zone                   = "us-west1-a"
+  project_id             = "<project-id>"
+  auth                   = file("~/.config/gcloud/application_default_credentials.json")
+  instance_ssh_key_pub   = "~/.ssh/id_ed25519_cl.pub"
+  instance_bastion_image = "ubuntu-os-cloud/ubuntu-2004-lts"
+  instance_sensor_image  = "alma-8-20240516193720"
+  subnetwork_mgmt_cidr   = "10.129.0.0/24"
+  subnetwork_mon_cidr    = "10.3.0.0/24"
+  subnetwork_mon_gateway = "10.3.0.1"
+  license_key            = file("~/corelight-license.txt")
+  community_string       = "managedPassword!"
 }
 
 ####################################################################################################
@@ -130,17 +130,17 @@ module "custom_bastion" {
 module "sensor" {
   source = "../.."
 
-  region                  = local.region
-  zone                    = local.zone
-  network_mgmt_name       = google_compute_network.mgmt.name
-  subnetwork_mgmt_name    = google_compute_subnetwork.mgmt_subnet.name
-  subnetwork_mgmt_cidr    = local.subnetwork_mgmt_cidr
-  network_prod_name       = google_compute_network.prod.name
-  subnetwork_mon_name     = google_compute_subnetwork.mon_subnet.name
-  subnetwork_mon_cidr     = local.subnetwork_mon_cidr
-  subnetwork_mon_gateway  = local.subnetwork_mon_gateway
-  instance_ssh_key_pub    = local.instance_ssh_key_pub
-  image                   = local.instance_sensor_image
-  sensor_license          = local.sensor_license
-  sensor_community_string = local.sensor_community_string
+  region                 = local.region
+  zone                   = local.zone
+  network_mgmt_name      = google_compute_network.mgmt.name
+  subnetwork_mgmt_name   = google_compute_subnetwork.mgmt_subnet.name
+  subnetwork_mgmt_cidr   = local.subnetwork_mgmt_cidr
+  network_prod_name      = google_compute_network.prod.name
+  subnetwork_mon_name    = google_compute_subnetwork.mon_subnet.name
+  subnetwork_mon_cidr    = local.subnetwork_mon_cidr
+  subnetwork_mon_gateway = local.subnetwork_mon_gateway
+  instance_ssh_key_pub   = local.instance_ssh_key_pub
+  image                  = local.instance_sensor_image
+  license_key            = local.license_key
+  community_string       = local.community_string
 }

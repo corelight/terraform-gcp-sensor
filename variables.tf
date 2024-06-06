@@ -107,14 +107,16 @@ variable "health_check_http_port" {
   description = "the port number for the HTTP health check request"
 }
 
-variable "sensor_license" {
+variable "license_key" {
+  description = "Your Corelight sensor license key"
   type        = string
-  description = "path to the Corelight sensor license file"
+  sensitive   = true
 }
 
-variable "sensor_community_string" {
+variable "community_string" {
   type        = string
-  description = "Fleet Manager community string (api string)"
+  sensitive   = true
+  description = "the community string (api string) often times referenced by Fleet"
 }
 
 variable "instance_template_resource_name" {
