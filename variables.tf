@@ -172,3 +172,22 @@ variable "packet_mirroring_resource_name" {
   default     = "corelight-traffic-mirroring"
   description = "the name of the packet mirroring resource"
 }
+
+# Enrichment Service
+variable "enrichment_enabled" {
+  description = "(optional) if cloud enrichment should enabled at time of sensor deployment"
+  type        = string
+  default     = false
+}
+
+variable "enrichment_cloud_provider_name" {
+  description = "(optional) the cloud provider name"
+  type        = string
+  default     = ""
+}
+
+variable "enrichment_bucket_name" {
+  description = "(optional) the s3 bucket, azure storage container, or gcs bucket name"
+  type        = string
+  default     = ""
+}

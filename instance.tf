@@ -8,6 +8,9 @@ module "sensor_config" {
   sensor_health_check_probe_source_ranges_cidr = var.region_probe_source_ranges_cidr
   subnetwork_monitoring_cidr                   = var.subnetwork_mon_cidr
   subnetwork_monitoring_gateway                = var.subnetwork_mon_gateway
+  enrichment_enabled                           = var.enrichment_enabled
+  enrichment_cloud_provider_name               = var.enrichment_cloud_provider_name
+  enrichment_bucket_name                       = var.enrichment_bucket_name
 }
 
 resource "google_compute_instance_template" "sensor_template" {
