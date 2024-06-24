@@ -37,9 +37,7 @@ module "sensor" {
   community_string        = "<the community string (api string) often times referenced by Fleet>"
 
   # Optional - Enrichment Service
-  enrichment_enabled             = "<if cloud enrichment should enabled at time of sensor deployment>"
-  enrichment_cloud_provider_name = "<the cloud provider name>"
-  enrichment_bucket_name         = "<the s3 bucket, azure storage container, or gcs bucket name>"
+  enrichment_bucket_name         = "<the gcs bucket name>"
 ```
 
 ### Deployment
