@@ -3,6 +3,15 @@ resource "google_compute_instance_template" "sensor_template" {
   machine_type = var.instance_size
   tags         = ["allow-ssh", "corelight", "sensor", "allow-health-check"]
 
+  dynamic "service_account" {
+    for_each = var.sensor_service_account_email == "" ? toset([]) : toset([1])
+
+    content {
+      scopes = ["cloud-platform"]
+      email  = var.sensor_service_account_email
+    }
+  }
+
   disk {
     source_image = var.image
     disk_size_gb = var.image_disk_size

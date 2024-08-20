@@ -65,12 +65,7 @@ resource "google_compute_packet_mirroring" "traffic_mirror" {
   }
 
   mirrored_resources {
-    tags = ["traffic-source"]
-    /*  point to specific instances, if necessary
-    instances {
-      url = google_compute_instance.traffic_source.id
-    }
-    */
+    tags = [var.packet_mirror_network_tag]
   }
 
   filter {
