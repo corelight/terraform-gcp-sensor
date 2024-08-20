@@ -173,8 +173,20 @@ variable "packet_mirroring_resource_name" {
   description = "the name of the packet mirroring resource"
 }
 
+variable "packet_mirror_network_tag" {
+  type        = string
+  default     = "traffic-source"
+  description = "the packet mirror policy tag for mirrored resources"
+}
+
 variable "enrichment_bucket_name" {
   description = "(optional) the gcs bucket name"
+  type        = string
+  default     = ""
+}
+
+variable "sensor_service_account_email" {
+  description = "When enrichment is configured, this must be set to a service account which has the required permissions"
   type        = string
   default     = ""
 }
