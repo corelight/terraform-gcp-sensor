@@ -119,10 +119,10 @@ variable "community_string" {
   description = "the community string (api string) often times referenced by Fleet"
 }
 
-variable "instance_template_resource_name" {
+variable "instance_template_resource_name_prefix" {
   type        = string
-  default     = "corelight-mig-template"
-  description = "the name of the instance template resource"
+  default     = "corelight-mig-template-"
+  description = "the name prefix of the instance template resource"
 }
 
 variable "instance_template_group_manager_resource_name" {

@@ -1,5 +1,5 @@
 resource "google_compute_instance_template" "sensor_template" {
-  name         = var.instance_template_resource_name
+  name_prefix  = var.instance_template_resource_name_prefix
   machine_type = var.instance_size
   tags         = ["allow-ssh", "corelight", "sensor", "allow-health-check"]
 
@@ -35,7 +35,7 @@ resource "google_compute_instance_template" "sensor_template" {
   }
 
   lifecycle {
-    create_before_destroy = false
+    create_before_destroy = true
   }
 }
 
