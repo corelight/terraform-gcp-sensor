@@ -11,6 +11,8 @@ locals {
   subnetwork_mon_gateway = "10.3.0.1"
   license_key            = file("~/corelight-license.txt")
   community_string       = "managedPassword!"
+  fleet_token            = "b1cd099ff22ed8a41abc63929d1db126"
+  fleet_url              = "https://fleet.example.com:1443/fleet/v1/internal/softsensor/websocket"
 }
 
 ####################################################################################################
@@ -143,4 +145,6 @@ module "sensor" {
   image                  = local.instance_sensor_image
   license_key            = local.license_key
   community_string       = local.community_string
+  fleet_token            = local.fleet_token
+  fleet_url              = local.fleet_url
 }
