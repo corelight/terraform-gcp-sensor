@@ -1,4 +1,4 @@
-# terraform-gcp-sensor
+[#](#) terraform-gcp-sensor
 
 <img src="docs/overview.png" alt="overview">
 
@@ -49,7 +49,9 @@ module "sensor" {
 The variables for this module all have default values that can be overwritten
 to meet your naming and compliance standards.
 
-Deployment examples can be found [here](examples).
+Deployment examples can be found [here][].
+
+[here]: https://github.com/corelight/corelight-cloud/tree/main/terraform/gcp-mig-sensor
 
 ## License
 
