@@ -1,3 +1,8 @@
+variable "project_id" {
+  description = "GCP project to deploy Corelight sensor resources"
+  type        = string
+}
+
 variable "region" {
   type        = string
   description = "the GCP region"
@@ -62,8 +67,8 @@ variable "subnetwork_mgmt_cidr" {
 }
 
 variable "region_probe_source_ranges_cidr" {
-  type        = list(string)
-  default     = ["130.211.0.0/22", "35.191.0.0/16"]
+  type = list(string)
+  default = ["130.211.0.0/22", "35.191.0.0/16"]
   description = "the GCP health check probe ranges, see https://cloud.google.com/load-balancing/docs/health-check-concepts#ip-ranges"
 }
 
