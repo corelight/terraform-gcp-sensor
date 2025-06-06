@@ -18,6 +18,7 @@ resource "google_compute_instance_template" "sensor_template" {
     disk_size_gb = var.image_disk_size
     auto_delete  = true
     boot         = true
+    disk_type    = "pd-ssd"
   }
 
   metadata = {

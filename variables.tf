@@ -37,7 +37,7 @@ variable "image" {
 
 variable "image_disk_size" {
   type        = string
-  default     = "120"
+  default     = "500"
   description = "the size of the image in gigabytes"
 }
 
