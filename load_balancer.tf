@@ -38,8 +38,10 @@ resource "google_compute_region_backend_service" "traffic_ilb_backend_service" {
   load_balancing_scheme = "INTERNAL"
   session_affinity      = "NONE"
 
+
   backend {
     group = google_compute_region_instance_group_manager.sensor_mig.instance_group
+    balancing_mode = "CONNECTION"
   }
 }
 
