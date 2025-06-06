@@ -22,7 +22,7 @@ resource "google_compute_firewall" "sensor_health_check_rule" {
 
   allow {
     protocol = "tcp"
-    ports = [var.health_check_http_port]
+    ports    = [var.health_check_http_port]
   }
 
   target_tags = ["sensor"]
@@ -32,7 +32,7 @@ resource "google_compute_region_backend_service" "traffic_ilb_backend_service" {
   name                  = var.region_backend_service_resource_name
   project               = var.project_id
   region                = var.region
-  health_checks = [google_compute_region_health_check.traffic_mon_health_check.id]
+  health_checks         = [google_compute_region_health_check.traffic_mon_health_check.id]
   protocol              = "TCP"
   network               = var.network_prod_name
   load_balancing_scheme = "INTERNAL"
@@ -73,8 +73,8 @@ resource "google_compute_packet_mirroring" "traffic_mirror" {
   }
 
   filter {
-    direction = "BOTH"
+    direction    = "BOTH"
     ip_protocols = []
-    cidr_ranges = []
+    cidr_ranges  = []
   }
 }

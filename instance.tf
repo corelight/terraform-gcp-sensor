@@ -2,14 +2,14 @@ resource "google_compute_instance_template" "sensor_template" {
   project      = var.project_id
   name_prefix  = var.instance_template_resource_name_prefix
   machine_type = var.instance_size
-  tags = ["allow-ssh", "corelight", "sensor", "allow-health-check"]
+  tags         = ["allow-ssh", "corelight", "sensor", "allow-health-check"]
 
   dynamic "service_account" {
     for_each = var.sensor_service_account_email == "" ? toset([]) : toset([1])
 
     content {
       scopes = ["cloud-platform"]
-      email = var.sensor_service_account_email
+      email  = var.sensor_service_account_email
     }
   }
 
