@@ -1,9 +1,9 @@
 resource "google_compute_region_health_check" "traffic_mon_health_check" {
   name               = var.region_health_check_resource_name
+  project            = var.project_id
   region             = var.region
   check_interval_sec = 30
   timeout_sec        = 30
-
 
   http_health_check {
     port         = var.health_check_http_port
@@ -15,6 +15,7 @@ resource "google_compute_region_health_check" "traffic_mon_health_check" {
 # allow all access from health check ranges
 resource "google_compute_firewall" "sensor_health_check_rule" {
   name          = var.firewall_resource_name
+  project       = var.project_id
   direction     = "INGRESS"
   network       = var.network_mgmt_name
   source_ranges = var.region_probe_source_ranges_cidr
@@ -29,6 +30,7 @@ resource "google_compute_firewall" "sensor_health_check_rule" {
 
 resource "google_compute_region_backend_service" "traffic_ilb_backend_service" {
   name                  = var.region_backend_service_resource_name
+  project               = var.project_id
   region                = var.region
   health_checks         = [google_compute_region_health_check.traffic_mon_health_check.id]
   protocol              = "TCP"
@@ -43,6 +45,7 @@ resource "google_compute_region_backend_service" "traffic_ilb_backend_service" {
 
 resource "google_compute_forwarding_rule" "traffic_forwarding_rule" {
   name                   = var.forwarding_rule_resource_name
+  project                = var.project_id
   backend_service        = google_compute_region_backend_service.traffic_ilb_backend_service.id
   region                 = var.region
   network                = var.network_prod_name
@@ -54,7 +57,8 @@ resource "google_compute_forwarding_rule" "traffic_forwarding_rule" {
 }
 
 resource "google_compute_packet_mirroring" "traffic_mirror" {
-  name = var.packet_mirroring_resource_name
+  name    = var.packet_mirroring_resource_name
+  project = var.project_id
 
   network {
     url = var.network_prod_name

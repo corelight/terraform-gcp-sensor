@@ -1,4 +1,5 @@
 resource "google_compute_instance_template" "sensor_template" {
+  project      = var.project_id
   name_prefix  = var.instance_template_resource_name_prefix
   machine_type = var.instance_size
   tags         = ["allow-ssh", "corelight", "sensor", "allow-health-check"]
@@ -25,13 +26,15 @@ resource "google_compute_instance_template" "sensor_template" {
   }
 
   network_interface {
-    network    = var.network_mgmt_name
-    subnetwork = var.subnetwork_mgmt_name
+    network            = var.network_mgmt_name
+    subnetwork         = var.subnetwork_mgmt_name
+    subnetwork_project = var.project_id
   }
 
   network_interface {
-    network    = var.network_prod_name
-    subnetwork = var.subnetwork_mon_name
+    network            = var.network_prod_name
+    subnetwork         = var.subnetwork_mon_name
+    subnetwork_project = var.project_id
   }
 
   lifecycle {
@@ -41,9 +44,9 @@ resource "google_compute_instance_template" "sensor_template" {
 
 resource "google_compute_region_instance_group_manager" "sensor_mig" {
   name               = var.instance_template_group_manager_resource_name
+  project            = var.project_id
   region             = var.region
   base_instance_name = var.instance_template_group_manager_base_instance_name
-
   version {
     instance_template = google_compute_instance_template.sensor_template.id
     name              = "Corelight-Sensor"
@@ -56,8 +59,9 @@ resource "google_compute_region_instance_group_manager" "sensor_mig" {
 }
 
 resource "google_compute_region_autoscaler" "sensor_autoscaler" {
-  name   = var.region_autoscaler_resource_name
-  target = google_compute_region_instance_group_manager.sensor_mig.id
+  name    = var.region_autoscaler_resource_name
+  project = var.project_id
+  target  = google_compute_region_instance_group_manager.sensor_mig.id
 
   autoscaling_policy {
     max_replicas    = var.region_autoscaler_policy_max_replicas

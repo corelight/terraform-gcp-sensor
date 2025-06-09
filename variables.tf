@@ -1,3 +1,8 @@
+variable "project_id" {
+  description = "GCP project to deploy Corelight sensor resources"
+  type        = string
+}
+
 variable "region" {
   type        = string
   description = "the GCP region"

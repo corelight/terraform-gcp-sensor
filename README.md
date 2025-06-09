@@ -21,7 +21,8 @@ provider "google" {
 
 module "sensor" {
   source = "github.com/corelight/terraform-gcp-sensor"
-
+  
+  project_id             = "<gcp project id>"
   region                  = "<instance region>"
   zone                    = "<instance availability zone>"
   network_mgmt_name       = "<virtual network management name>"
