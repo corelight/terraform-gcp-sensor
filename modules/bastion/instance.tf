@@ -1,4 +1,3 @@
-#trivy:ignore:AVD-GCP-0031  allow bastion to be exposted to the internet
 resource "google_compute_instance" "bastion_instance" {
   name         = var.instance_resource_name
   machine_type = var.instance_size
