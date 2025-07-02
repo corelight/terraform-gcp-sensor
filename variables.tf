@@ -113,15 +113,9 @@ variable "health_check_http_port" {
 }
 
 variable "license_key" {
-  description = "Your Corelight sensor license key. Optional if fleet_url is configured."
-  sensitive   = true
+  description = "Your Corelight sensor license key"
   type        = string
-  default     = ""
-
-  validation {
-    condition     = var.license_key != "" || var.fleet_url != ""
-    error_message = "Either license_key must be provided or fleet_url must be configured."
-  }
+  sensitive   = true
 }
 
 variable "community_string" {
