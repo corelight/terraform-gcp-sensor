@@ -8,11 +8,6 @@ variable "region" {
   description = "the GCP region"
 }
 
-variable "zone" {
-  description = "the GCP zone in specified region"
-  type        = string
-}
-
 variable "instance_size" {
   type        = string
   default     = "e2-standard-8"
@@ -61,9 +56,20 @@ variable "subnetwork_mon_name" {
   description = "the name or self_link of the monitor subnetwork to attach this interface to"
 }
 
-variable "subnetwork_mgmt_cidr" {
+variable "fleet_token" {
   type        = string
-  description = "the management subnet for the sensor(s)"
+  sensitive   = true
+  description = "The pairing token from the Fleet UI. Must be set if 'fleet_url' is provided"
+}
+
+variable "fleet_url" {
+  type        = string
+  description = "The URL of the fleet instance from the Fleet UI. Must be set if 'fleet_token' is provided"
+}
+
+variable "fleet_server_sslname" {
+  type        = string
+  description = "The SSL hostname for the fleet server"
 }
 
 variable "region_probe_source_ranges_cidr" {
@@ -190,36 +196,10 @@ variable "packet_mirror_network_tag" {
   description = "the packet mirror policy tag for mirrored resources"
 }
 
-variable "enrichment_bucket_name" {
-  description = "(optional) the gcs bucket name"
-  type        = string
-  default     = ""
-}
-
 variable "sensor_service_account_email" {
   description = "When enrichment is configured, this must be set to a service account which has the required permissions"
   type        = string
   default     = ""
-}
-
-variable "fleet_token" {
-  type        = string
-  default     = ""
-  sensitive   = true
-  description = "(optional) the pairing token from the Fleet UI. Must be set if 'fleet_url' is provided"
-}
-
-variable "fleet_url" {
-  type        = string
-  default     = ""
-  description = "(optional) the URL of the fleet instance from the Fleet UI. Must be set if 'fleet_token' is provided"
-}
-
-variable "fleet_server_sslname" {
-  type        = string
-  default     = "1.broala.fleet.product.corelight.io"
-  description = "(optional) the SSL hostname for the fleet server"
-
 }
 
 variable "fleet_http_proxy" {
