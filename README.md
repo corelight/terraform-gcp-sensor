@@ -1,4 +1,4 @@
-[#](#) terraform-gcp-sensor
+# terraform-gcp-sensor
 
 <img src="docs/overview.png" alt="overview">
 
