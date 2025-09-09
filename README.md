@@ -39,6 +39,7 @@ module "sensor" {
   
   fleet_token = "<the pairing token from the Fleet UI>"
   fleet_url   = "<the URL of the fleet instance from the Fleet UI>"
+  fleet_server_sslname = "<the ssl name provided by Fleet>"
 ```
 
 ### Deployment
