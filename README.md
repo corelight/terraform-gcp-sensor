@@ -36,13 +36,9 @@ module "sensor" {
   image                   = "<instance image>"
   license_key             = "<your Corelight sensor license key>"
   community_string        = "<the community string (api string) often times referenced by Fleet>"
-
-  # Optional - Fleet Manager
+  
   fleet_token = "<the pairing token from the Fleet UI>"
   fleet_url   = "<the URL of the fleet instance from the Fleet UI>"
-
-  # Optional - Enrichment Service
-  enrichment_bucket_name = "<the gcs bucket name>"
 ```
 
 ### Deployment
