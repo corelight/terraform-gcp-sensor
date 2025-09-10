@@ -197,7 +197,7 @@ variable "packet_mirror_network_tag" {
 }
 
 variable "sensor_service_account_email" {
-  description = "When enrichment is configured, this must be set to a service account which has the required permissions"
+  description = "The service account email granting the sensor cloud features permission to GCP APIs and services"
   type        = string
   default     = ""
 }
