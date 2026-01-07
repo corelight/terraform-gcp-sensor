@@ -26,6 +26,26 @@ output "forwarding_rule_id" {
   value = google_compute_forwarding_rule.traffic_forwarding_rule.id
 }
 
-output "packet_mirroring_id" {
-  value = google_compute_packet_mirroring.traffic_mirror.id
+# NSI Out-of-Band Mirroring Outputs (replaces packet_mirroring_id)
+output "mirroring_deployment_group_id" {
+  value       = google_network_security_mirroring_deployment_group.mirroring_group.id
+  description = "ID of the NSI mirroring deployment group (producer side)"
+}
+
+output "mirroring_deployment_id" {
+  value       = google_network_security_mirroring_deployment.mirroring_deployment.id
+  description = "ID of the NSI mirroring deployment (producer side)"
+}
+
+output "mirroring_endpoint_group_id" {
+  value       = google_network_security_mirroring_endpoint_group.mirroring_endpoint.id
+  description = "ID of the NSI mirroring endpoint group (consumer side)"
+}
+
+output "vpc_association_ids" {
+  value = {
+    for k, v in google_network_security_mirroring_endpoint_group_association.vpc_associations :
+    k => v.id
+  }
+  description = "Map of VPC network names to their endpoint group association IDs"
 }

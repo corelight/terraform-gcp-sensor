@@ -1,5 +1,6 @@
 resource "google_compute_instance_template" "sensor_template" {
   project      = var.project_id
+  region       = var.region
   name_prefix  = var.instance_template_resource_name_prefix
   machine_type = var.instance_size
   tags         = ["allow-ssh", "corelight", "sensor", "allow-health-check"]
@@ -27,14 +28,14 @@ resource "google_compute_instance_template" "sensor_template" {
   }
 
   network_interface {
-    network            = var.network_mgmt_name
-    subnetwork         = var.subnetwork_mgmt_name
+    network            = google_compute_network.mgmt_network.id
+    subnetwork         = google_compute_subnetwork.mgmt_subnet.id
     subnetwork_project = var.project_id
   }
 
   network_interface {
-    network            = var.network_prod_name
-    subnetwork         = var.subnetwork_mon_name
+    network            = google_compute_network.sensor_network.id
+    subnetwork         = google_compute_subnetwork.mon_subnet.id
     subnetwork_project = var.project_id
   }
 
@@ -62,6 +63,7 @@ resource "google_compute_region_instance_group_manager" "sensor_mig" {
 resource "google_compute_region_autoscaler" "sensor_autoscaler" {
   name    = var.region_autoscaler_resource_name
   project = var.project_id
+  region  = var.region
   target  = google_compute_region_instance_group_manager.sensor_mig.id
 
   autoscaling_policy {

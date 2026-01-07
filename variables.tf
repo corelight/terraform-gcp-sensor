@@ -8,6 +8,11 @@ variable "region" {
   description = "the GCP region"
 }
 
+variable "zone" {
+  type        = string
+  description = "the GCP zone for zonal resources"
+}
+
 variable "instance_size" {
   type        = string
   default     = "e2-standard-8"
@@ -38,7 +43,8 @@ variable "image_disk_size" {
 
 variable "network_mgmt_name" {
   type        = string
-  description = "the name or self_link of the mgmt network to attach this interface to"
+  default     = ""
+  description = "the name or self_link of the mgmt network. Defaults to sensor_network_name if not specified."
 }
 
 variable "subnetwork_mgmt_name" {
@@ -46,9 +52,14 @@ variable "subnetwork_mgmt_name" {
   description = "the name or self_link of the mgmt subnetwork to attach this interface to"
 }
 
-variable "network_prod_name" {
+variable "subnetwork_mgmt_cidr" {
   type        = string
-  description = "the name or self_link of the prod network to attach this interface to"
+  description = "CIDR range for the management subnetwork (e.g., '10.0.1.0/24')"
+}
+
+variable "sensor_network_name" {
+  type        = string
+  description = "the name or self_link of the network where sensors receive mirrored traffic (monitoring network)"
 }
 
 variable "subnetwork_mon_name" {
@@ -118,15 +129,15 @@ variable "health_check_http_port" {
   description = "the port number for the HTTP health check request"
 }
 
-variable "license_key" {
-  description = "Your Corelight sensor license key. Optional if fleet_url is configured."
+variable "license_key_file_path" {
+  description = "Path to file containing your Corelight sensor license key. Optional if fleet_url is configured."
   sensitive   = true
   type        = string
   default     = ""
 
   validation {
-    condition     = var.license_key != "" || var.fleet_url != ""
-    error_message = "Either license_key must be provided or fleet_url must be configured."
+    condition     = var.license_key_file_path != "" || var.fleet_url != ""
+    error_message = "Either license_key_file_path (path to license file) must be provided or fleet_url must be configured."
   }
 }
 
@@ -184,16 +195,59 @@ variable "forwarding_rule_resource_name" {
   description = "the name of the forwarding rule resource"
 }
 
-variable "packet_mirroring_resource_name" {
+# NSI Out-of-Band Mirroring Variables (replaces traditional packet mirroring)
+variable "mirroring_deployment_group_id" {
   type        = string
-  default     = "corelight-traffic-mirroring"
-  description = "the name of the packet mirroring resource"
+  default     = "corelight-mirroring-deployment-group"
+  description = "ID for the NSI mirroring deployment group (producer side)"
 }
 
-variable "packet_mirror_network_tag" {
+variable "mirroring_deployment_id" {
   type        = string
-  default     = "traffic-source"
-  description = "the packet mirror policy tag for mirrored resources"
+  default     = "corelight-mirroring-deployment"
+  description = "ID for the NSI mirroring deployment (producer side)"
+}
+
+variable "mirroring_endpoint_group_id" {
+  type        = string
+  default     = "corelight-mirroring-endpoint-group"
+  description = "ID for the NSI mirroring endpoint group (consumer side, shared across all VPCs)"
+}
+
+variable "mirrored_vpcs" {
+  type = list(object({
+    network       = string
+    project_id    = optional(string)
+  }))
+  default     = []
+  description = <<-EOT
+    List of VPC networks to mirror traffic from to the Corelight sensors.
+    For single VPC deployments, provide one entry. For multi-VPC, provide multiple entries.
+
+    If empty, defaults to mirroring from sensor_network_name.
+
+    Fields:
+    - network: Name or self_link of the VPC network to mirror from
+    - project_id: (Optional) Project ID if VPC is in different project. Defaults to var.project_id
+
+    Example single VPC:
+    mirrored_vpcs = [{
+      network = "customer-vpc-1"
+    }]
+
+    Example multi-VPC:
+    mirrored_vpcs = [
+      { network = "customer-vpc-1", project_id = "customer-project-1" },
+      { network = "customer-vpc-2", project_id = "customer-project-2" },
+      { network = "customer-vpc-3" }
+    ]
+  EOT
+}
+
+variable "mirroring_labels" {
+  type        = map(string)
+  default     = {}
+  description = "Labels to apply to NSI mirroring resources"
 }
 
 variable "sensor_service_account_email" {
@@ -218,4 +272,48 @@ variable "fleet_no_proxy" {
   type        = string
   default     = ""
   description = "(optional) hosts or domains to bypass the proxy for fleet traffic"
+}
+
+# NSI Mirroring Traffic Selection Variables
+
+variable "organization_id" {
+  type        = string
+  default     = ""
+  description = "Organization ID (numeric only, e.g., '536691410123') for referencing org-level security profiles. If not specified, will be derived from the project."
+}
+
+variable "security_profile_id" {
+  type        = string
+  default     = ""
+  description = "Full resource ID of the security profile created by org admin. Format: organizations/ORG_ID/locations/global/securityProfiles/PROFILE_NAME. If empty, will be constructed from organization_id and mirroring_profile_name."
+}
+
+variable "security_profile_group_id" {
+  type        = string
+  default     = ""
+  description = "Full resource ID of the security profile group created by org admin. Format: organizations/ORG_ID/locations/global/securityProfileGroups/GROUP_NAME. If empty, will be constructed from organization_id and mirroring_profile_group_name."
+}
+
+variable "mirroring_profile_name" {
+  type        = string
+  default     = "corelight-mirror-profile"
+  description = "Name for the custom mirroring security profile (used if security_profile_id not provided)"
+}
+
+variable "mirroring_profile_group_name" {
+  type        = string
+  default     = "corelight-mirror-profile-group"
+  description = "Name for the security profile group containing the mirroring profile (used if security_profile_group_id not provided)"
+}
+
+variable "mirroring_src_ip_ranges" {
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+  description = "Source IP ranges to mirror for ingress traffic"
+}
+
+variable "mirroring_dest_ip_ranges" {
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+  description = "Destination IP ranges to mirror for egress traffic"
 }

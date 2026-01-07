@@ -9,7 +9,7 @@ module "sensor_config" {
   fleet_https_proxy      = var.fleet_https_proxy
   fleet_no_proxy         = var.fleet_no_proxy
 
-  sensor_license                               = var.license_key
+  sensor_license                               = var.license_key_file_path != "" ? file(var.license_key_file_path) : ""
   sensor_management_interface_name             = "eth0"
   sensor_monitoring_interface_name             = "eth1"
   sensor_health_check_probe_source_ranges_cidr = var.region_probe_source_ranges_cidr
