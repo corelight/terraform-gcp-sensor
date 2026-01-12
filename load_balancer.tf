@@ -33,7 +33,7 @@ resource "google_compute_region_backend_service" "traffic_ilb_backend_service" {
   project               = var.project_id
   region                = var.region
   health_checks         = [google_compute_region_health_check.traffic_mon_health_check.id]
-  protocol              = "UDP"  # Must match forwarding rule protocol for NSI mirroring
+  protocol              = "UDP" # Must match forwarding rule protocol for NSI mirroring
   network               = google_compute_network.sensor_network.id
   load_balancing_scheme = "INTERNAL"
   session_affinity      = "NONE"
@@ -53,7 +53,7 @@ resource "google_compute_forwarding_rule" "traffic_forwarding_rule" {
   network                = google_compute_network.sensor_network.id
   subnetwork             = google_compute_subnetwork.mon_subnet.id
   is_mirroring_collector = true
-  ip_protocol            = "UDP"  # NSI mirroring uses Geneve encapsulation (UDP/6081) to preserve original packets
+  ip_protocol            = "UDP" # NSI mirroring uses Geneve encapsulation (UDP/6081) to preserve original packets
   load_balancing_scheme  = "INTERNAL"
   all_ports              = true
 }
@@ -93,6 +93,7 @@ resource "google_network_security_mirroring_deployment_group" "mirroring_group" 
 }
 
 # Producer Side: Mirroring Deployment (zonal, links to ILB)
+# Only ONE deployment per forwarding rule. Regional ILB distributes to all zones.
 resource "google_network_security_mirroring_deployment" "mirroring_deployment" {
   mirroring_deployment_id = var.mirroring_deployment_id
   project                 = var.project_id

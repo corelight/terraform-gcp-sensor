@@ -54,3 +54,22 @@ resource "google_compute_firewall" "allow_iap_ssh" {
 
   description = "Allow SSH access from Identity-Aware Proxy"
 }
+
+# Allow Geneve-encapsulated mirrored traffic for NSI out-of-band mirroring
+# NSI mirroring uses Geneve protocol (UDP port 6081) to deliver mirrored packets
+resource "google_compute_firewall" "allow_geneve" {
+  name    = "${var.sensor_network_name}-allow-geneve"
+  project = var.project_id
+  network = google_compute_network.sensor_network.name
+
+  allow {
+    protocol = "udp"
+    ports    = ["6081"]
+  }
+
+  # Allow from anywhere - mirrored traffic comes from GCP infrastructure
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["sensor"]
+
+  description = "Allow Geneve-encapsulated mirrored traffic (UDP 6081) for NSI out-of-band mirroring"
+}

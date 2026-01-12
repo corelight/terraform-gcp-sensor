@@ -216,8 +216,8 @@ variable "mirroring_endpoint_group_id" {
 
 variable "mirrored_vpcs" {
   type = list(object({
-    network       = string
-    project_id    = optional(string)
+    network    = string
+    project_id = optional(string)
   }))
   default     = []
   description = <<-EOT

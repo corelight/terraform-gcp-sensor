@@ -125,7 +125,7 @@ This module uses **GCP Network Security Integration (NSI) Out-of-Band Mirroring*
 | Scope | Multi-project, multi-VPC | Single VPC |
 | Management | Centralized deployment groups | Per-VPC resources |
 
-For detailed migration analysis, see [NSI_MIGRATION_ANALYSIS.md](NSI_MIGRATION_ANALYSIS.md).
+For detailed deployment instructions, see [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md).
 
 ## Requirements
 
