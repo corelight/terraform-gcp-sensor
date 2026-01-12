@@ -186,12 +186,201 @@ subnetwork_mon_name                              = "my-mon-subnet"
 
 See `variables.tf` for all customizable resource names.
 
-### Deployment
+## Deployment
 
-The variables for this module all have default values that can be overwritten
-to meet your naming and compliance standards.
+### Quick Deploy (With Org-Level Permissions)
 
-Deployment examples can be found [here][].
+If you have `roles/networksecurity.admin` at your organization level:
+
+```bash
+# Create terraform.tfvars with all required variables
+terraform init
+terraform apply
+```
+
+The module creates all resources including org-level security profiles.
+
+### Three-Phase Deploy (Without Org-Level Permissions)
+
+Most users don't have organization-level permissions. Follow this three-phase process:
+
+#### Phase 1: Deploy Sensor Infrastructure
+
+**Goal**: Create the mirroring endpoint group and get its ID.
+
+**1. Configure variables** (leave `mirrored_vpcs` empty):
+
+```hcl
+# terraform.tfvars
+project_id              = "your-project"
+region                  = "us-central1"
+zone                    = "us-central1-a"
+sensor_network_name     = "sensor-vpc"
+subnetwork_mgmt_name    = "sensor-mgmt-subnet"
+subnetwork_mgmt_cidr    = "10.0.1.0/24"
+subnetwork_mon_name     = "sensor-mon-subnet"
+subnetwork_mon_cidr     = "10.0.2.0/24"
+subnetwork_mon_gateway  = "10.0.2.1"
+instance_ssh_key_pub    = "~/.ssh/id_rsa.pub"
+image                   = "projects/corelight-public/global/images/corelight-sensor-VERSION"
+license_key_file_path   = "path/to/license.txt"
+community_string        = "your-api-string"
+
+organization_id = "123456789012"  # Get with: gcloud organizations list
+
+# Leave empty for Phase 1
+mirrored_vpcs = []
+```
+
+**2. Temporarily disable firewall policy resources** in `mirroring_rules.tf`:
+
+```bash
+# Comment out firewall policy resources
+sed -i.bak '/^resource "google_compute_network_firewall_policy"/,/^}/s/^/# /' mirroring_rules.tf
+sed -i '/^resource "google_compute_network_firewall_policy_packet_mirroring_rule"/,/^}/s/^/# /' mirroring_rules.tf
+sed -i '/^resource "google_compute_network_firewall_policy_association"/,/^}/s/^/# /' mirroring_rules.tf
+```
+
+**3. Deploy:**
+
+```bash
+terraform init
+terraform plan  # Verify firewall policies are NOT in plan
+terraform apply
+```
+
+**4. Get endpoint group ID:**
+
+```bash
+terraform output mirroring_endpoint_group_id
+# Output: projects/your-project/locations/global/mirroringEndpointGroups/corelight-mirroring-endpoint-group
+```
+
+Save this ID for your org admin.
+
+#### Phase 2: Organization Admin Creates Security Profiles
+
+Send your organization admin this request:
+
+---
+
+**Email Template:**
+
+```
+Subject: Request: Create GCP NSI Security Profiles for Corelight Deployment
+
+Hi [Admin Name],
+
+I'm deploying Corelight sensors with NSI out-of-band mirroring and need
+organization-level security profiles created.
+
+Mirroring Endpoint Group ID:
+projects/your-project/locations/global/mirroringEndpointGroups/corelight-mirroring-endpoint-group
+
+Organization ID: 123456789012
+
+Requested Profile Names:
+- Security Profile: corelight-mirror-profile
+- Security Profile Group: corelight-mirror-profile-group
+
+Commands to run (requires roles/networksecurity.admin at org level):
+
+# Set variables
+ORG_ID="123456789012"
+ENDPOINT_GROUP_ID="projects/your-project/locations/global/mirroringEndpointGroups/corelight-mirroring-endpoint-group"
+PROFILE_NAME="corelight-mirror-profile"
+GROUP_NAME="corelight-mirror-profile-group"
+
+# Create security profile
+gcloud network-security security-profiles custom-mirroring create ${PROFILE_NAME} \
+  --organization=${ORG_ID} \
+  --location=global \
+  --description="Corelight sensor mirroring profile" \
+  --mirroring-endpoint-group="${ENDPOINT_GROUP_ID}"
+
+# Create security profile group
+gcloud network-security security-profile-groups create ${GROUP_NAME} \
+  --organization=${ORG_ID} \
+  --location=global \
+  --description="Corelight sensor mirroring profile group" \
+  --custom-mirroring-profile="organizations/${ORG_ID}/locations/global/securityProfiles/${PROFILE_NAME}"
+
+# Get resource IDs
+gcloud network-security security-profiles describe ${PROFILE_NAME} \
+  --organization=${ORG_ID} --location=global --format="value(name)"
+
+gcloud network-security security-profile-groups describe ${GROUP_NAME} \
+  --organization=${ORG_ID} --location=global --format="value(name)"
+
+Please send me the two resource IDs (starting with organizations/...).
+
+Thank you!
+```
+
+---
+
+Your org admin will provide:
+```
+organizations/123456789012/locations/global/securityProfiles/corelight-mirror-profile
+organizations/123456789012/locations/global/securityProfileGroups/corelight-mirror-profile-group
+```
+
+#### Phase 3: Complete Your Deployment
+
+**1. Update terraform.tfvars** to add VPCs to mirror:
+
+```hcl
+organization_id              = "123456789012"
+mirroring_profile_name       = "corelight-mirror-profile"
+mirroring_profile_group_name = "corelight-mirror-profile-group"
+
+# Add VPCs to mirror
+mirrored_vpcs = [
+  {
+    network    = "projects/customer-1/global/networks/prod-vpc"
+    project_id = "customer-1"
+  },
+  {
+    network    = "projects/customer-2/global/networks/prod-vpc"
+    project_id = "customer-2"
+  }
+]
+```
+
+**2. Restore firewall policy resources:**
+
+```bash
+cp mirroring_rules.tf.bak mirroring_rules.tf
+# Or manually remove the # comments added in Phase 1
+```
+
+**3. Apply:**
+
+```bash
+terraform plan  # Should show firewall policies being created
+terraform apply
+```
+
+**4. Verify traffic:**
+
+```bash
+# SSH to sensor
+gcloud compute ssh SENSOR-NAME --project=your-project --zone=us-central1-a --tunnel-through-iap
+
+# Check for Geneve packets
+sudo tcpdump -i eth1 -nn 'udp port 6081'
+```
+
+You should see Geneve-encapsulated traffic from your mirrored VPCs.
+
+### Why Three Phases?
+
+GCP's permission model requires:
+- **Security profiles** at organization level (org admin creates these)
+- **Security profiles** must reference **mirroring endpoint group** (you create this)
+- **Firewall policies** reference **security profile group** (you create after org admin)
+
+Once Phase 2 is complete, you can add/remove VPCs without involving your org admin.
 
 [here]: https://github.com/corelight/corelight-cloud/tree/main/terraform/gcp-mig-sensor
 
